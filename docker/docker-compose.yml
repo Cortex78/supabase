@@ -8,6 +8,31 @@ name: supabase
 version: "3.8"
 
 services:
+  nginx:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      # Thse ports are une format <host-port>:<container-port>
+      - '80:80' # Public Http Port
+      - '443:443' # Public HTTPS Port
+      - '81:81' # Admin Web Port
+    volumes:
+      - ./nginx-data:/data
+      - ./nginx-letsencrypt:/etc/letsencrypt
+      - ./nginx-snippets:/snippets:ro
+    environment:
+      TZ: 'Europe/Paris'
+  authelia:
+    container_name: authelia
+    image: authelia/authelia
+    restart: unless-stopped
+    expose:
+      - 9091
+    volumes:
+      - ./authelia/config:/config
+    environment:
+      TZ: 'Europe/Paris'
+      
   studio:
     container_name: supabase-studio
     image: supabase/studio:20240422-5cf8f30
